@@ -1,0 +1,9 @@
+# SpecStory explanation file
+.specstory/.what-is-this.md
+node_modules
+
+coverage
+dist
+output
+
+.DS_Store

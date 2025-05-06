@@ -1,0 +1,100 @@
+@startuml UseCase Class Diagram
+
+interface "IUsecase (Script Executor)"<P,R> {
+  +execute(requestId: string, params?: P): Promise<ScriptExecutorResponse<R>>
+}
+
+interface "IUsecase (CSV Example)"<P,R> {
+  +execute(requestId: string, params?: P): Promise<CsvExampleResponse<R>>
+}
+
+interface "IUsecase (Console Example)"<P,R> {
+  +execute(requestId: string, params?: P): Promise<ConsoleExampleResponse<R>>
+}
+
+interface ScriptExecutorStrategy<I,T> {
+  +transform(input: I): Promise<T>
+  +validate(transformedData: T): Promise<T>
+  +dry_run(transformedData: T): Promise<T>
+  +actual_run(transformedData: T): Promise<T>
+  +verify(transformedData: T): Promise<boolean>
+}
+
+' Abstract Classes
+abstract class ScriptExecutorTemplate<I,T> {
+  #taskDAO: ITaskDAO<I,T>
+  +handle(requestId: string, name: string, user_id: string, inputs: Array<I>, is_dry_run: boolean): Promise<Array<Task<I,T>>>
+  {abstract} +transform(input: I): Promise<T>
+  {abstract} +validate(transformedData: T): Promise<T>
+  {abstract} +dry_run(transformedData: T): Promise<T>
+  {abstract} +actual_run(transformedData: T): Promise<T>
+  {abstract} +verify(transformedData: T): Promise<boolean>
+  {abstract} +display_output(input: I, transformedData: T, task: Task<I,T>, taskItem: TaskItem<I,T>): Promise<void>
+}
+
+' Concrete Classes
+class ConsoleOutputScriptExecutor<I,T> {
+  -params: ConsoleOutputScriptExecutorParams<I,T>
+  +transform(input: I): Promise<T>
+  +validate(transformedData: T): Promise<T>
+  +dry_run(transformedData: T): Promise<T>
+  +actual_run(transformedData: T): Promise<T>
+  +verify(transformedData: T): Promise<boolean>
+  +display_output(input: I, transformedData: T, task: Task<I,T>, taskItem: TaskItem<I,T>): Promise<void>
+  +execute(requestId: string, params?: ConsoleOutputScriptExecutorParams<I,T>): Promise<ScriptExecutorResponse<Array<Task<I,T>>>>
+}
+
+class CsvOutputScriptExecutor<I,T> {
+  -params: CsvOutputScriptExecutorParams<I,T>
+  +transform(input: I): Promise<T>
+  +validate(transformedData: T): Promise<T>
+  +dry_run(transformedData: T): Promise<T>
+  +actual_run(transformedData: T): Promise<T>
+  +verify(transformedData: T): Promise<boolean>
+  +display_output(input: I, transformedData: T, task: Task<I,T>, taskItem: TaskItem<I,T>): Promise<void>
+  +execute(requestId: string, params?: CsvOutputScriptExecutorParams<I,T>): Promise<ScriptExecutorResponse<Array<Task<I,T>>>>
+}
+
+class OrderStatusCorrection {
+  -consoleOutputScriptExecutor: ConsoleOutputScriptExecutor<Input,Transform>
+  +execute(requestId: string, params: OrderStatusCorrectionParams): Promise<ConsoleExampleResponse<Array<ITask<Input,Transform>>>>
+  +getInputs(): Array<Input>
+}
+
+class OrderStatusCorrectionCsv {
+  -csvOutputScriptExecutor: CsvOutputScriptExecutor<Input,Transform>
+  +execute(requestId: string, params: OrderStatusCorrectionCsvParams): Promise<CsvExampleResponse<Array<ITask<Input,Transform>>>>
+  +getInputs(): Array<Input>
+}
+
+class OrderStatusCorrectionStrategy {
+  +transform(input: Input): Promise<Transform>
+  +validate(transformedData: Transform): Promise<Transform>
+  +dry_run(transformedData: Transform): Promise<Transform>
+  +actual_run(transformedData: Transform): Promise<Transform>
+  +verify(transformedData: Transform): Promise<boolean>
+}
+
+class OrderStatusCorrectionCsvStrategy {
+  +transform(input: Input): Promise<Transform>
+  +validate(transformedData: Transform): Promise<Transform>
+  +dry_run(transformedData: Transform): Promise<Transform>
+  +actual_run(transformedData: Transform): Promise<Transform>
+  +verify(transformedData: Transform): Promise<boolean>
+}
+
+' Relationships
+ScriptExecutorTemplate ..|> ScriptExecutorStrategy
+ConsoleOutputScriptExecutor --|> ScriptExecutorTemplate
+ConsoleOutputScriptExecutor ..|> "IUsecase (Script Executor)"
+CsvOutputScriptExecutor --|> ScriptExecutorTemplate  
+CsvOutputScriptExecutor ..|> "IUsecase (Script Executor)"
+OrderStatusCorrection ..|> "IUsecase (Console Example)"
+OrderStatusCorrectionCsv ..|> "IUsecase (CSV Example)"
+OrderStatusCorrectionStrategy ..|> ScriptExecutorStrategy
+OrderStatusCorrectionCsvStrategy ..|> ScriptExecutorStrategy
+
+OrderStatusCorrection --> ConsoleOutputScriptExecutor
+OrderStatusCorrectionCsv --> CsvOutputScriptExecutor
+
+@enduml

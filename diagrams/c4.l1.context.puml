@@ -1,0 +1,20 @@
+@startuml C4_Context
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title "Ad-hoc Script Executor - System Context Diagram"
+
+Person(user, "Script User", "User who needs to run data migration or business logic scripts")
+
+System(scriptExecutor, "Ad-hoc Script Executor", "System that executes scripts following predefined templates for data migration and business logic")
+
+System_Ext(database, "Database", "External database system that scripts interact with")
+System_Ext(externalSystems, "External Systems", "Other systems that scripts may interact with")
+
+Rel(user, scriptExecutor, "Uses", "Executes scripts")
+Rel(scriptExecutor, database, "Reads/Writes", "Performs data operations")
+Rel(scriptExecutor, externalSystems, "Interacts", "Makes API calls")
+
+LAYOUT_WITH_LEGEND()
+
+@enduml

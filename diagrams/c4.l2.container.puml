@@ -1,0 +1,33 @@
+@startuml C4_Container
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title "Ad-hoc Script Executor - Container Diagram"
+
+Person(user, "Script User", "User who needs to run data migration or business logic scripts")
+
+System_Boundary(scriptExecutor, "Ad-hoc Script Executor") {
+    Container(scriptExecutorModule, "Script Executor Module", "TypeScript, NestJS", "Core module containing base templates and main use case that controls execution flow")
+    
+    Container(consoleExample, "Console Example Module", "TypeScript, NestJS", "Example module implementing order status correction with console output")
+    
+    Container(csvExample, "CSV Example Module", "TypeScript, NestJS", "Example module implementing order status correction with CSV output")
+}
+
+System_Ext(database, "Database", "External database system that scripts interact with")
+System_Ext(externalSystems, "External Systems", "Other systems that scripts may interact with")
+
+Rel(user, consoleExample, "Executes", "CLI")
+Rel(user, csvExample, "Executes", "CLI")
+
+Rel(consoleExample, scriptExecutorModule, "Uses", "Executes core strategy steps")
+Rel(csvExample, scriptExecutorModule, "Uses", "Executes core strategy steps")
+
+Rel(scriptExecutorModule, database, "Reads/Writes", "Performs data operations")
+Rel(scriptExecutorModule, externalSystems, "Interacts", "Makes API calls")
+
+LAYOUT_WITH_LEGEND()
+
+@enduml
+
+
